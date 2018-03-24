@@ -12,11 +12,17 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 
+
+########################
+#### The argument parser : define hyper parameters
+################
+
+
 parser = argparse.ArgumentParser(description='SVHN on PyTorch attempt by Theo Ayral')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
 
-parser.add_argument('--log-interval', type=int, default=10, metavar='N',
+parser.add_argument('--log-interval', type=int, default=100, metavar='N',
                     help='how many batches to wait before logging training status')
 
 parser.add_argument('--batch-size', type=int, default=64, metavar='N',
@@ -32,6 +38,12 @@ parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
                     help='SGD momentum (default: 0.5)')
 
+
+
+##################################
+
+
+
 def main():
     
     global args	
@@ -44,6 +56,7 @@ def main():
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 
     # Data Loader from torch and vision
+    # Crop 28x28 and grayscale like mnist
     transform_composition=transforms.Compose([transforms.CenterCrop(28),transforms.Grayscale(), transforms.ToTensor()])
 
 
@@ -67,13 +80,14 @@ def main():
         model.cuda()
 
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+    
 
     for epoch in range(1, args.epochs + 1):
         train(epoch, model, optimizer, train_loader)
         test(model, optimizer, test_loader)
 
 
-
+# This is copi-pasted from pytorch's mnist example
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -127,10 +141,6 @@ def test(model, optimizer, test_loader):
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
-
-
-
-
 
 
 if __name__ == '__main__':
